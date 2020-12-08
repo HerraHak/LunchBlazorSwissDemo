@@ -1,0 +1,70 @@
+﻿@page "/fetchdata"
+@inject HttpClient Http
+
+<h1>
+    Swiss Transport
+</h1>
+
+<p>Fetching data from swiss transport</p>
+
+
+    <input type="text" @bind="@City"/>
+    <button @onclick="SubmitCity">Ok</button>
+
+@if(stations != null && stations.Stations!=null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Score</th>
+                <th>Coordinate</th>
+                <th>Distance</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var station in stations.Stations)
+            {
+                <tr>
+                    <td>@station.Id</td>
+                    <td>@station.Name</td>
+                    <td>@station.Score</td>
+                    <td>@station.Coordinate.Type, @station.Coordinate.X, @station.Coordinate.Y</td>
+                    <td>@station.Distance</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private StationCollection stations;
+    private string City { get; set; }
+
+    private async void SubmitCity()
+    {
+        stations = await Http.GetFromJsonAsync<StationCollection>($"locations?query={City}");
+    }
+
+    public class Station
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string Score { get; set; }
+        public Coordinate Coordinate { get; set; }
+        public string Distance { get; set; }
+    }
+
+    public class Coordinate
+    {
+        public string Type { get; set; }
+        public double X { get; set; }
+        public double Y { get; set; }
+    }
+
+    public class StationCollection
+    {
+        public Station[] Stations { get; set; }
+    }
+}
